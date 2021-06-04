@@ -1,0 +1,8 @@
+## -- INITIALIZERによる挿入 --
+# 各モジュールのymlは、小分けにしたroleをincludeするだけのシンプルさを保ちます。
+- hosts: pi3
+  become: yes
+  become_user: root
+  roles:
+    - common
+## -- INITIALIZERによる挿入 --

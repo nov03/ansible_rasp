@@ -1,0 +1,8 @@
+- name: mkdir .ssh          #.sshフォルダの作成
+  file: dest=/home/pi/.ssh/ state=directory owner=pi group=pi mode=700
+
+- name: add authorized keys #.ssh以下にauthorized_keysファイルの作成
+  file: dest=/home/pi/.ssh/authorized_keys state=touch owner=pi group=pi mode=600
+
+- name: copy publickey     #公開鍵を貼付け
+  copy: src=id_rsa.pub dest=/home/pi/.ssh/authorized_keys

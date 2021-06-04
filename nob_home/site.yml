@@ -1,0 +1,4 @@
+## -- INITIALIZERによる挿入 --
+# site.ymlはincludeのみでシンプルに保ちます。
+- include: pi3.yml
+## -- INITIALIZERによる挿入 --

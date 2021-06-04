@@ -1,0 +1,6 @@
+
+- name: alias設定
+  lineinfile:
+    path: '/etc/profile'
+    regexp: 'alias ll='
+    line: "alias ll='ls -l'"

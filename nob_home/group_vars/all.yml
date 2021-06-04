@@ -1,0 +1,6 @@
+## -- INITIALIZERによる挿入 --
+# 各モジュールのymlは、小分けにしたroleをincludeするだけのシンプルさを保ちます。
+
+  #   become_user: vagrant
+  #   become: yes
+## -- INITIALIZERによる挿入 --

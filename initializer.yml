@@ -1,0 +1,137 @@
+# localhost上で、AnsibleのBestpracticeなディレクトリ構成の雛形を作成します。
+# 
+# 以下のように、localhost指定で作成します・
+# ansible-playbook -i localhost, -c local initializer.yml
+#  
+
+- hosts: localhost
+  vars_prompt:
+    - name: "root_dir_name"
+      prompt: "生成するディレクトリ名を指定してください。"
+      confirm: no
+      private: no
+      default: "sample"
+  vars:
+    root_dir_path: "{{ playbook_dir }}/{{ root_dir_name }}"
+    inventory_path: "{{ root_dir_path }}/inventories"
+    environments: 
+        - rasp
+        - esxi
+    roles_path: "{{ root_dir_path }}/roles"
+    roles_subs:
+        - common/tasks
+        - common/handlers
+        - common/templates
+        - common/files
+        - common/vars
+        - common/defaults
+        - common/meta
+    roles_subs_yml:
+        - common/tasks
+        - common/handlers
+        - common/vars
+        - common/defaults
+        - common/meta
+    generate_marker: "## -- INITIALIZERによる挿入 --"    
+
+  tasks:
+    # inventories
+    - name: Create environment directories
+      file: 
+        path: "{{ inventory_path }}/{{ item }}"
+        state: directory 
+        mode: 0755
+      with_items: "{{ environments }}"
+
+    - name: Create environment hosts
+      blockinfile: 
+        path: "{{ inventory_path }}/{{ item }}/hosts"
+        create: yes
+        marker: "{{ generate_marker }}"
+        block: |
+          [webservers]
+          127.0.0.1
+
+          [dbservers]
+          127.0.0.1
+      with_items: "{{ environments }}"
+
+    # vars directories
+    - name: Create vars directories
+      file: 
+        path: "{{ root_dir_path }}/{{ item }}"
+        state: directory 
+        mode: 0755
+      with_items: 
+        - "group_vars"
+        - "host_vars"
+
+    # sample group_vars.yml
+    - name: Create group_vars ymls
+      blockinfile: 
+        path: "{{ root_dir_path }}/group_vars/{{ item }}.yml"
+        create: yes
+        marker: "{{ generate_marker }}"
+        block: | 
+            # 各モジュールのymlは、小分けにしたroleをincludeするだけのシンプルさを保ちます。
+            - hosts: {{ item }}
+              #   become_user: vagrant
+              #   become: yes
+              roles:
+      with_items: 
+        - "pi"
+        - "esxi"
+        - "all"
+
+    - name: Create host_vars directories vars.yml
+      blockinfile: 
+        path: "{{ roles_path }}/{{ item }}/main.yml"
+        create: yes
+        marker: "{{ generate_marker }}"
+        block: | 
+            # 担当するモジュールのみを扱うように、シンプルに保ちます。
+      with_items: "{{ roles_subs_yml }}"
+
+    # roles
+    - name: Create role directories
+      file: 
+        path: "{{ roles_path }}/{{ item }}"
+        state: directory 
+        mode: 0755
+      with_items: "{{ roles_subs }}"
+
+    - name: Create role directories main.yml
+      blockinfile: 
+        path: "{{ roles_path }}/{{ item }}/main.yml"
+        create: yes
+        marker: "{{ generate_marker }}"
+        block: | 
+            # 担当するモジュールのみを扱うように、シンプルに保ちます。
+      with_items: "{{ roles_subs_yml }}"
+
+
+    # modules
+    - name: Create module ymls
+      blockinfile: 
+        path: "{{ root_dir_path }}/{{ item }}.yml"
+        create: yes
+        marker: "{{ generate_marker }}"
+        block: | 
+            # 各モジュールのymlは、小分けにしたroleをincludeするだけのシンプルさを保ちます。
+            - hosts: {{ item }}
+              #   become_user: vagrant
+              #   become: yes
+              roles:
+      with_items: 
+        - webservers
+        - dbservers
+
+    - name: Create main yml
+      blockinfile: 
+        path: "{{ root_dir_path }}/site.yml"
+        create: yes
+        marker: "{{ generate_marker }}"
+        block: | 
+            # site.ymlはincludeのみでシンプルに保ちます。
+            - include: webservers.yml
+            - include: dbservers.yml

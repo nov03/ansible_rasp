@@ -1,0 +1,7 @@
+## -- INITIALIZERによる挿入 --
+[pi3]
+192.168.1.32 ansible_ssh_user=pi private-key="~/.ssh/id_rsa"
+
+[pi2]
+127.0.0.1
+## -- INITIALIZERによる挿入 --

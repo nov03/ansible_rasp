@@ -1,0 +1,35 @@
+- name: copy apt_sources.list.d
+  copy: 
+    src={{ item }}
+    dest=/etc/apt/sources.list.d/{{ item }}
+  with_items:
+    - vscode.list
+
+#VScodeのgpgキーを取得する
+- name: Add an Apt signing key to a specific keyring file
+  ansible.builtin.apt_key:
+    url: https://dl-ssl.google.com/linux/linux_signing_key.pub
+    keyring: /etc/apt/trusted.gpg.d/microsoft.gpg
+
+- name: apt update
+  apt:
+    update_cache=yes
+
+- name: apt dist-upgrade
+  apt:
+    upgrade=dist
+    force=yes
+  ignore_errors: true
+
+- name: apt install
+  apt: name={{item}} state=present
+  with_items:
+    - vim
+    - mlocate
+    - git
+    - curl
+    - apt-transport-https
+    - code
+
+
+

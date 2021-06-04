@@ -1,0 +1,4 @@
+- include: timezone.yml
+- include: ssh.yml
+- include: apt.yml
+- include: alias.yml
