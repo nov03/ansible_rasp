@@ -1,0 +1,12 @@
+---
+# #########################################################################
+# postgres用変数ファイル
+# #########################################################################
+
+
+'user':
+  pg_owner: postgres
+  pg_group: postgres
+  directory_pgdata: /var/lib/pgsql/
+  keyname: id_rsa_pgpool
+  db_pass: "postgres"

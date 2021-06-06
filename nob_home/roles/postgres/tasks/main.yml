@@ -1,0 +1,10 @@
+---
+- name: "グループvars読み込み"
+  include_vars: "../group_vars/postgres.yml"
+
+- include: common.yml
+- include: user.yml
+- include: ssh.yml
+- include: hosts.yml
+- include: install.yml
+- include: dbinit.yml

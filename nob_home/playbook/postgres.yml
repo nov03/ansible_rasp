@@ -1,0 +1,8 @@
+## -- INITIALIZERによる挿入 --
+# 各モジュールのymlは、小分けにしたroleをincludeするだけのシンプルさを保ちます。
+- hosts: vagrant
+  become: yes
+  become_user: root
+  roles:
+    - postgres
+## -- INITIALIZERによる挿入 --

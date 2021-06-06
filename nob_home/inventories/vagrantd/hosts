@@ -1,0 +1,14 @@
+## -- INITIALIZERによる挿入 --
+[server1]
+192.168.137.101 ansible_ssh_user=root private-key="~/.ssh/id_rsa"
+
+[server2]
+192.168.137.102 ansible_ssh_user=root private-key="~/.ssh/id_rsa"
+
+[server3]
+192.168.137.103 ansible_ssh_user=root private-key="~/.ssh/id_rsa"
+
+[vagrant:children]
+server1
+server2
+server3

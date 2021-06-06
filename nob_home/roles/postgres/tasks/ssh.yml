@@ -1,0 +1,54 @@
+
+- name: ssh  directory
+  file: path=/root/.ssh state=directory owner=root group=root mode=0700
+
+
+- name: "deploy authorized key"
+  authorized_key:
+    user: "{{ user['pg_owner'] }}"
+    state: "present"
+    key: "{{ item.ssh_public_key }}"
+    # path: "/vagrant_data/{{ user['keyname'] }}"
+  with_items:
+    - "{{ key_context }}"
+  when: inventory_hostname == "server1"
+
+- name: 作成した鍵をvagrant_dataにコピー
+  shell: "cp {{ user['directory_pgdata'] }}.ssh/{{ user['keyname'] }} /vagrant_data/{{ user['keyname'] }}"
+
+- name: 作成したauthorized_keysをvagrant_dataにコピー
+  shell: "cp {{ user['directory_pgdata'] }}.ssh/{{ user['keyname'] }}.pub /vagrant_data/authorized_keys"
+
+- name: 作成したpubキーをauthorized_keysにコピー
+  shell: "cp {{ user['directory_pgdata'] }}.ssh/{{ user['keyname'] }}.pub {{ user['directory_pgdata'] }}.ssh/authorized_keys"
+
+
+  
+
+- name: authorized_keys copy 
+  copy:
+    src: "/vagrant_data/authorized_keys"
+    dest: "{{ item.value }}"
+    owner: "{{ item.key }}"
+    group: "{{ item.key }}"
+    mode: 0600
+    remote_src: yes
+  loop: "{{ user_info | dict2items }}"
+  vars:
+    user_info:
+      root: "/root/"
+      postgres: "{{ user['directory_pgdata'] }}"
+
+- name: key copy 
+  copy:
+    src: "/vagrant_data/id_rsa_pgpool"
+    dest: "{{ item.value }}"
+    owner: "{{ item.key }}"
+    group: "{{ item.key }}"
+    mode: 0600
+  loop: "{{ user_info | dict2items }}"
+  vars:
+    user_info:
+      root: "/root/"
+      postgres: "{{ user['directory_pgdata'] }}"
+

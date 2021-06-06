@@ -1,0 +1,64 @@
+
+- name: Make Directory for DB Cluster
+  file:
+    path: "{{ user['directory_pgdata'] }}"
+    state: directory
+    owner: "{{ user['pg_owner'] }}"
+    group: "{{ user['pg_group'] }}"
+    mode: '0755'
+
+
+- name: /etc/environment に環境変数を書き込み
+  become: yes
+  ini_file:
+    path: /etc/environment
+    no_extra_spaces: yes
+    section: null
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+  loop: "{{ envs | dict2items }}"
+  vars:
+    envs:
+      PGDATA: /var/lib/pgsql/13/data
+
+- name: ディレクトリの作成
+  file: 
+    path: "{{ item }}"
+    state: directory
+    owner: "postgres"
+    group: "postgres"
+    mode: '0755'
+  with_items:
+    - "/var/lib/pgsql/archivedir"
+    - "/etc/pgpool-II"
+    - "/var/log/pgpool_log/"
+
+
+
+- name: install Postgresql repository
+  yum:
+    name: https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+    disable_gpg_check: yes
+    # state: present
+    
+- name: install pgpool repository
+  yum:
+    name: http://www.pgpool.net/yum/rpms/4.2/redhat/rhel-8-x86_64/pgpool-II-release-4.2-1.noarch.rpm
+    disable_gpg_check: yes
+    # state: present
+
+
+- name: disable repo
+  shell: dnf -qy module disable postgresql
+
+- name: Install 
+  yum:
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  vars:
+    packages:
+      - "postgresql13-server"
+      - "pgpool-II-pg13-*"
+      - "python38" #psycopg2インストール用
+      - "python3-psycopg2.x86_64"
