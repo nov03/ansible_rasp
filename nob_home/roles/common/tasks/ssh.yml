@@ -1,3 +1,5 @@
+#秘密鍵はmacかubuntu端末に保管
+
 - name: mkdir .ssh          #.sshフォルダの作成
   file: dest=/home/pi/.ssh/ state=directory owner=pi group=pi mode=700
 

@@ -1,0 +1,9 @@
+---
+- name: "update timezone"
+  timezone:
+    name: "Asia/Tokyo"
+
+- name: "update locale"
+  tags: "locale"
+  shell: "localectl set-locale LANG=en_US.UTF-8"
+

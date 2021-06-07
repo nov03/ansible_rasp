@@ -1,49 +1,21 @@
-# - name: Create schema
-#   become_user: postgres
-#   postgresql_schema:
-#     name: "{{ item.name }}"
-#     owner: "{{ item.owner|default('postgres') }}"
-#     port: "{{ postgresql_port }}"
-#   with_items: "{{ postgresql_schemas }}"
+- block:
+  - name: Check DB Cluster
+    stat:
+      path: "{{ user['directory_pgdata'] }}data/postgresql.conf"
+    register: conf_pgdata
 
-# - name: Create database
-#   become_user: postgres
-#   postgresql_db:
-#     name: "{{ item.name }}"
-#     template: "{{ item.template|default('template1') }}"
-#     lc_collate: "{{ item.lc_collate|default('C') }}"
-#     lc_ctype: "{{ item.lc_ctype|default('C') }}"
-#     port: "{{ postgresql_port }}"
-#   with_items: "{{ postgresql_databases }}"
+  - name: Create DB Cluster
+    become: yes
+    become_user: "{{ user['pg_owner'] }}"
+    become_method: su
+    shell: /usr/pgsql-13/bin/initdb -E UTF8 --locale=C
+    when: conf_pgdata.stat.exists == false
 
-
-
-# - name: initdb
-#   shell: /usr/pgsql-13/bin/initdb -E UTF8 --locale=C -A scram-sha-256 -W
-#   become: yes
-#   become_user: postgres
-#   when: not dbcluster.stat.exists
-
-- name: Create PostgreSQL database
-  postgresql_db:
-    name: postgres
-    owner: postgres
-    encoding: 'UTF-8'
-    lc_collate: 'ja_JP.UTF-8'
-    lc_ctype: 'ja_JP.UTF-8'
-    template: 'template0'
-    login_user: postgres
-    login_password: "{{ user['db_pass'] }}"
-  notify: Restart postgresql-13
-
-
-- name: Create PostgreSQL user
-  postgresql_user:
-    name: postgres
-    password: "{{ user['db_pass'] }}"
-    login_user: postgres
-    login_password: "{{ user['db_pass'] }}"
-  notify: Restart postgresql-13
+  - name: Auto Start
+    systemd:
+      name: postgresql
+      enabled: yes
+  when: inventory_hostname == "server1"
 
 
 
@@ -94,12 +66,12 @@
 
 
 
-- name: restart service
-  systemd:
-    name: "{{ item }}"
-    state: restarted
-    daemon_reload: yes
-    enabled: yes
-  with_items:
-    - pgpool.service
-    # - postgresql-13.service
+# - name: restart service
+#   systemd:
+#     name: "{{ item }}"
+#     state: restarted
+#     daemon_reload: yes
+#     enabled: yes
+#   with_items:
+#     - pgpool.service
+#     - postgresql-13.service

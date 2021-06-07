@@ -4,5 +4,6 @@
   become: yes
   become_user: root
   roles:
+    - common
     - postgres
 ## -- INITIALIZERによる挿入 --
