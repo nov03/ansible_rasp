@@ -13,12 +13,12 @@
 
   - name: Auto Start
     systemd:
-      name: postgresql
+      name: postgresql-13.service
+      state: restarted
+      daemon_reload: yes
       enabled: yes
   when: inventory_hostname == "server1"
-
-
-
+  
 
 # - name: 資材コピー
 #   copy:
